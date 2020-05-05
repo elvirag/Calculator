@@ -23,8 +23,8 @@ def parse_input(input_line):
     The loop goes through the elements and converts chains of minus or pluses
     into a s single element of minus or plus.
     The function then returns the list of elements."""
-    elements = re.findall(r"(-*\d*\.\d+|-*\d+|[a-zA-Z]+|-+|\++|[*/^()])", input_line)
-    elements = [element for element in elements if element]
+    elements = re.findall(r"(\+*-*\d*\.\d+|-*\d+|[a-zA-Z]+|-+|\++|[*/^()])", input_line)
+    elements = list(filter(None, elements))
 
     for ind, element in enumerate(elements):
         if len(element) == element.count("+") + element.count("-"):
@@ -33,6 +33,14 @@ def parse_input(input_line):
                     elements[ind] = "-"
                 else:
                     elements[ind] = "+"
+        elif element.count("+") > 1:
+            while element.count("+") > 2:
+                element = element.replace("++", "")
+            elements[ind] = element
+        elif element.count("-") > 1:
+            while element.count("-") > 2:
+                element = element.replace("--", "")
+            elements[ind] = element
 
     return elements
 
@@ -71,7 +79,7 @@ def calculate_postfix(postfix):
             else:
                 calculation_stack.append(element)
     else:
-        return "Nothing was input"
+        return "Input to variable was not found"
 
     return str_to_num(calculation_stack[-1])
 
@@ -165,7 +173,7 @@ def calculator():
             user_input = user_input.split("=")[1].strip()
         res = solve(user_input)
         if res and left_val:
-            if res not in ["Division by zero", "Nothing was input"]:
+            if res not in ["Division by zero", "Input to variable was not found"]:
                 variable_dict[left_val] = res
             else:
                 return res
